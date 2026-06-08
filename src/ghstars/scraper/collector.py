@@ -122,13 +122,25 @@ class GitHubClient:
             if len(parts) >= 1:
                 return parts[-1]
 
-        # Try GraphQL search for email/name
+        # If it looks like a plain GitHub username (no @, no spaces, no slashes),
+        # return it directly — no API call needed. GitHub usernames are
+        # alphanumeric with optional single hyphens.
+        stripped = query.strip()
+        if (
+            "@" not in stripped
+            and "/" not in stripped
+            and " " not in stripped
+            and len(stripped) <= 39  # GitHub max username length
+        ):
+            return stripped
+
+        # Try GraphQL search for email/name (requires auth)
         try:
             data = await self._graphql(USER_LOOKUP_QUERY, {"query": query})
             nodes = data.get("search", {}).get("nodes", [])
             if nodes:
                 return nodes[0]["login"]
-        except (GraphQLError, httpx.HTTPError):
+        except (GraphQLError, httpx.HTTPStatusError, httpx.HTTPError):
             pass
 
         # Fallback: try REST API

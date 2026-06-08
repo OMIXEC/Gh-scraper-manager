@@ -6,25 +6,76 @@
 
 Comprehensive CLI toolkit for managing GitHub starred repositories: scrape, enrich with AI metadata, export to multiple formats, mirror/migrate to another account, and search with hybrid keyword+vector retrieval. Also includes RAG-powered chat to find the best repos for any task.
 
-## Quick Start
+---
 
-```bash
-cp .env.example .env    # edit with your keys
+## Setup
 
-# 3-step pipeline (no GitHub token needed for public profiles)
-ghstars scrape <username>                    # Step 1: fetch stars
-ghstars enrich --model deepseek-v4-flash     # Step 2: AI metadata (cheapest)
-ghstars export --format all                  # Step 3: export everything
-ghstars index                                # Optional: vector index for hybrid search
-ghstars chat "best Python CLI framework"     # RAG-powered recommendations
-```
-
-## Installation
+### 1. Install
 
 ```bash
 git clone https://github.com/omixec/gh-stars-manager && cd gh-stars-manager
 pip install -e ".[dev]"
 ```
+
+### 2. Configure `.env`
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and set **at minimum** one LLM provider. Choose ONE of the three options below:
+
+**Option A: Deepseek (cheapest, recommended)**
+```bash
+LLM_PROVIDER=deepseek
+DEEPSEEK_API_KEY=sk-your-deepseek-key-here
+DEEPSEEK_MODEL=deepseek-v4-flash      # fast & cheap for bulk
+```
+
+**Option B: OpenAI**
+```bash
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-your-openai-key-here
+OPENAI_MODEL=gpt-4o-mini
+```
+
+**Option C: Anthropic Claude**
+```bash
+LLM_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your-anthropic-key-here
+ANTHROPIC_MODEL=claude-sonnet-4-20250514
+```
+
+**Optional extras:**
+```bash
+GITHUB_TOKEN=ghp_...     # higher API rate limits (5,000/hr vs 60/hr without)
+HF_TOKEN=hf_...          # HuggingFace token for embedding model download
+```
+
+### 3. Verify
+
+```bash
+ghstars version
+# gh-stars-manager v0.1.0
+```
+
+---
+
+## Quick Start
+
+```bash
+# 3 commands — no GitHub token needed for public profiles
+ghstars scrape OMIXEC                        # Step 1: fetch stars (works instantly)
+ghstars enrich                               # Step 2: AI metadata (uses provider from .env)
+ghstars export --format all                  # Step 3: export all formats
+
+# Optional extras
+ghstars index                                # Build vector index for hybrid search
+ghstars search "python async web scraper"    # Hybrid keyword+vector search
+ghstars chat "best Rust CLI framework"       # LLM-powered recommendations
+```
+
+---
 
 ## Features at a Glance
 
